@@ -5,21 +5,37 @@ help:
 	@echo "'make java-arrays': build the Java implementation of Disk Fixed Size Arrays"
 	@echo "'make fast-intersection': build the faster intersection module using Cython"
 	@echo "'make clean': remove files built by the commands above"
+	@echo "'make clean-corpora': remove all folders and their contents inside the 'corpora' folder"
+	@echo "'make clean-all': remove all generated folders/files"
+	@echo "'make build-all': build all files"
+	@echo "'make clean-build-all': remove then build everything"
 
-
-clean:
-	$(MAKE) -C java clean
-	rm -f DiskFixedSizeArray.jar
-	rm -f fast_intersection.c fast_intersection.cpython*.so
-
+java-arrays: DiskFixedSizeArray.jar
 
 fast-intersection:
 	python setup.py build_ext --inplace
-
-
-java-arrays: DiskFixedSizeArray.jar
 
 DiskFixedSizeArray.jar: java/*.java
 	$(MAKE) -C java java-arrays
 	cp java/$@ $@
 
+clean:
+	$(MAKE) -C java clean
+	rm -f DiskFixedSizeArray.jar
+	rm -f fast_intersection.c fast_intersection.cpython*.so *.pyd
+	rm -rf ./build ./cache
+
+clean-corpora:
+	-find corpora -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
+
+clean-all:
+	$(MAKE) clean
+	$(MAKE) clean-corpora
+
+build-all:
+	$(MAKE) java-arrays
+	$(MAKE) fast-intersection
+
+clean-build-all:
+	$(MAKE) clean-all
+	$(MAKE) build-all
