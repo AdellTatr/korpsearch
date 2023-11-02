@@ -15,7 +15,7 @@ from util import progress_bar, CompressedFileReader, add_suffix
 class Corpus:
     dir_suffix = '.corpus'
     features_file = 'features.cfg'
-    feature_prefix = 'feature:'
+    feature_prefix = 'feature-'
     sentences_path = 'sentences'
     sentence_feature = 's'
     sentence_start_value = b'S'

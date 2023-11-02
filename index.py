@@ -27,12 +27,12 @@ class Literal(NamedTuple):
     value : InternedString
 
     def __str__(self):
-        return f"{self.feature}:{self.offset}{'#' if self.negative else '='}{self.value}"
+        return f"{self.feature}-{self.offset}{'#' if self.negative else '='}{self.value}"
 
     @staticmethod
     def parse(corpus:Corpus, litstr:str) -> 'Literal':
         try:
-            feature, rest = litstr.split(':')
+            feature, rest = litstr.split('-')
             assert feature.replace('_','').isalnum()
             try:
                 offset, value = rest.split('=')
@@ -49,12 +49,12 @@ class TemplateLiteral(NamedTuple):
     feature : str
 
     def __str__(self):
-        return f"{self.feature}:{self.offset}"
+        return f"{self.feature}-{self.offset}"
 
     @staticmethod
     def parse(litstr:str) -> 'TemplateLiteral':
         try:
-            feature, offset = litstr.split(':')
+            feature, offset = litstr.split('-')
             assert feature.replace('_','').isalnum()
             return TemplateLiteral(int(offset), feature.lower())
         except (ValueError, AssertionError):
