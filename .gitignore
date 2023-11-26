@@ -142,3 +142,10 @@ cache/
 # These are built by Make:
 fast_intersection.c
 DiskFixedSizeArray.jar
+
+# Benchmark files
+benchmark/tempCodeRunnerFile.py
+benchmark/*.csv
+
+# VS Code temp
+.vscode/
