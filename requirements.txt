@@ -1,6 +1,9 @@
 # All needed packages can be installed by running the command:
-#         pip install -r requirements.txt
+#   pip install -r requirements.txt
 
-tqdm      # For a better progress bar
-Cython    # If we want to use the fast intersection algorithm
-FastAPI   # If we want to run the web demo
+tqdm          # For a better progress bar
+Cython        # If we want to use the fast intersection algorithm
+FastAPI       # If we want to run the web demo
+patch-ng      # Library to parse and apply unified diffs (required for the 'lmdb' package in PyPy)
+lmdb          # If we want to sort using the LMDB 'Lightning' Database
+prettytable   # To print test results in an attractive ASCII tables

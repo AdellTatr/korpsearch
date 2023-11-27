@@ -17,6 +17,12 @@ There are no required libraries, you should be able to run things without instal
 
 - [PyPy](https://www.pypy.org/) if you want building and search to be around twice as fast
 
+- [patch-ng](https://pypi.org/project/patch-ng/) a library to parse and apply unified diffs (required for the 'lmdb' package in PyPy)
+
+- [lmdb](https://pypi.org/project/lmdb/) if you want to sort using the LMDB 'Lightning' Database
+
+- [prettytable](https://pypi.org/project/prettytable/) to print test results in an formatted ASCII tables
+
 ## Building inverted indexes
 
 Before you can start searching in a corpus you have to build the corpus index, and then some inverted indexes. If you want help, run:
@@ -34,7 +40,7 @@ Now you can build inverted indexes for the corpus, for the features `word`, `lem
 python build_indexes.py --corpus corpora/bnc-100k.csv --features word lemma pos --max-dist 2
 ```
 
-`--max-dist` tells how many different binary indexes that will be created: it's the maximum adjacent distance between the tokens in the query. The default setting is 2. If you only want unary indexes you can set `--max-dist` to 0, and if you want mroe control you can use the `--templates` option instead of `--features`.
+`--max-dist` tells how many different binary indexes that will be created: it's the maximum adjacent distance between the tokens in the query. The default setting is 2. If you only want unary indexes you can set `--max-dist` to 0, and if you want more control you can use the `--templates` option instead of `--features`.
 
 Note that this can take quite some time for large corpora. If you use [PyPy](https://www.pypy.org/) it will be around twice as fast.
 
