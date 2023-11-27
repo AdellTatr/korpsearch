@@ -25,7 +25,7 @@ def min_bytes_to_store_values(max_value:int) -> int:
 
 class CompressedFileReader:
     """
-    A class that can read compressed (and uncompressed) files, 
+    A class that can read compressed (and uncompressed) files,
     and where you can query the original file size and the current position.
     Use e.g. like this:
 
@@ -42,8 +42,8 @@ class CompressedFileReader:
         self.basefile = binfile = open(path, 'rb')
         self.reader = (
             gzip.open(binfile, mode='rb') if path.suffix == '.gz'  else
-            bz2.open(binfile, mode='rb')  if path.suffix == '.bz2' else 
-            lzma.open(binfile, mode='rb') if path.suffix == '.xz'  else 
+            bz2.open(binfile, mode='rb')  if path.suffix == '.bz2' else
+            lzma.open(binfile, mode='rb') if path.suffix == '.xz'  else
             binfile
         )   # type: ignore
 
@@ -106,7 +106,7 @@ def progress_bar(iterable:Optional[Iterable]=None, desc:str="", **kwargs) -> tqd
 
 
 ###############################################################################
-## Debugging 
+## Debugging
 
 class RelativeTimeFormatter(logging.Formatter):
     def __init__(self, *args:Any, divider:float=1000, **kwargs:Any):
@@ -129,9 +129,9 @@ def setup_logger(format:str, timedivider:int=1000, loglevel:int=logging.WARNING,
 
 # from typing import Protocol, Generic
 # from abc import abstractmethod
-# 
+#
 # CT = TypeVar("CT", bound='Comparable', contravariant=True)
-# 
+#
 # class Comparable(Generic[CT], Protocol):
 #     """Protocol for annotating comparable types."""
 #     @abstractmethod

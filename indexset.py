@@ -14,7 +14,7 @@ try:
 except ModuleNotFoundError:
     print("Module 'fast_intersection' not found. "
           "To install, run: 'python setup.py build_ext --inplace'. "
-          "Defaulting to an internal implementation.\n", 
+          "Defaulting to an internal implementation.\n",
           file=sys.stderr)
 
 
@@ -106,7 +106,7 @@ class IndexSet:
             self.values.reset_append()
             return self.values
         else:
-            if other and other.path: 
+            if other and other.path:
                 assert DiskIntArray.getpath(resultpath) != DiskIntArray.getpath(other.path)
             return DiskIntArrayBuilder(resultpath)
 
@@ -138,8 +138,8 @@ class IndexSet:
 
     def _intersection_external(self, other:'IndexSet', difference:bool) -> Optional[IndexSetValuesType]:
         # Complexity: O(self + other)
-        if (isinstance(self.values, DiskIntArray) and 
-            isinstance(other.values, DiskIntArray) and 
+        if (isinstance(self.values, DiskIntArray) and
+            isinstance(other.values, DiskIntArray) and
             len(self) > 0 and len(other) > 0 and
             self.values._byteorder == other.values._byteorder == sys.byteorder and
             self.values._elemsize == other.values._elemsize

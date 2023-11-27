@@ -25,7 +25,7 @@ app.mount("/webdemo", StaticFiles(directory="webdemo"), name="webdemo")
 
 def api_call(call, *args, **xargs):
     start_time = time()
-    try: 
+    try:
         result = call(*args, **xargs)
         result['time'] = time() - start_time
         result['version'] = VERSION
@@ -79,13 +79,13 @@ def get_corpus_info(corpus_path):
 @app.get("/search")
 async def search(
         corpus: str,
-        cqp: str, 
+        cqp: str,
         start: int = 0,
         num: int = 10,
         end: int = -1,
-        show: str = "", 
+        show: str = "",
         filter: bool = False,
-        no_cache: bool = False, 
+        no_cache: bool = False,
         no_sentence_breaks: bool = False,
         internal_intersection: bool = False,
     ):
@@ -93,13 +93,13 @@ async def search(
         main_search,
         Namespace(
             corpus = corpus,
-            query = cqp, 
+            query = cqp,
             start = start,
             num = num,
             end = end,
-            show = show, 
+            show = show,
             filter = filter,
-            no_cache = no_cache, 
+            no_cache = no_cache,
             no_sentence_breaks = no_sentence_breaks,
             internal_intersection = internal_intersection,
         )

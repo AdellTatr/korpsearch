@@ -39,12 +39,12 @@ def intersection(arr1, start1, length1, offset1, arr2, start2, length2, offset2,
         x = read_bytes(in1+i, size) - offset1
         y = read_bytes(in2+j, size) - offset2
 
-        if x < y: 
+        if x < y:
             i += size
             if difference:
                 write_bytes(out+k, x, size)
                 k += size
-        elif x > y: 
+        elif x > y:
             j += size
         else:
             i += size

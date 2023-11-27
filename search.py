@@ -94,7 +94,7 @@ def run_query(query:Query, results_file:Path, use_internal:bool=False) -> IndexS
     return intersection
 
 
-def search_corpus(corpus:Corpus, query:Query, filter_results:bool, 
+def search_corpus(corpus:Corpus, query:Query, filter_results:bool,
                   no_cache:bool, internal_intersection:bool) -> IndexSet:
     unfiltered_results_file = hash_query(corpus, query)
     final_results_file = hash_query(corpus, query, filter=filter_results)
@@ -140,8 +140,8 @@ def main_search(args:Namespace) -> dict:
                     raise ValueError(f"Unknown feature: {f}")
         else:
             features_to_show = [
-                feat for feat in corpus.features 
-                if feat in query.features 
+                feat for feat in corpus.features
+                if feat in query.features
                 if args.no_sentence_breaks or feat != corpus.sentence_feature  # don't show the sentence feature
             ]
 

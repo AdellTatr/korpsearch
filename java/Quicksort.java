@@ -44,7 +44,7 @@ public class Quicksort<E> {
 
     private int partition(List<E> array, int lo, int hi) {
         int piv = selector.pivot(array, lo, hi, comparator);
-        if (piv != lo) 
+        if (piv != lo)
             swap(array, lo, piv);
         E pivot = array.get(lo);
 
@@ -60,7 +60,7 @@ public class Quicksort<E> {
 
         swap(array, lo, j);
         return j;
-    }        
+    }
 
 
     interface PivotSelector {

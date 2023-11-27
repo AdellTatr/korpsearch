@@ -40,7 +40,7 @@ class Corpus:
         assert all(
             len(self) == len(arr) for arr in self.tokens.values()
         )
-        
+
     def __str__(self) -> str:
         return f"[Corpus: {self.path.stem}]"
 
@@ -142,7 +142,7 @@ class Corpus:
                     pbar.update(corpus.file_position() - pbar.n)
                     line = line.strip()
                     if line.startswith(b'# '):
-                        if sentence: 
+                        if sentence:
                             yield sentence
                             sentence = []
                     elif line:
@@ -151,7 +151,7 @@ class Corpus:
                         if len(token) < len(features):
                             token += [Corpus.empty_value] * (len(features) - len(token))
                         sentence.append(token)
-                if sentence: 
+                if sentence:
                     yield sentence
 
         strings : List[Set[bytes]] = [set() for _feature in features]
@@ -184,7 +184,7 @@ class Corpus:
         assert ctr == n_tokens
 
         sentence_builder.close()
-        for builder in feature_builders: 
+        for builder in feature_builders:
             builder.close()
 
         logging.info(f"Built corpus index, {n_tokens} tokens, {n_sentences} sentences")

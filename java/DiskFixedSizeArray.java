@@ -78,7 +78,7 @@ public class DiskFixedSizeArray extends AbstractList<DiskFixedSizeArray.Record> 
         if (args.length > 4) reportError("Too many arguments");
 
         String arrayPath = args[0];
-    
+
         int recordSize = 0;
         try {
             recordSize = Integer.parseInt(args[1]);
@@ -116,9 +116,9 @@ public class DiskFixedSizeArray extends AbstractList<DiskFixedSizeArray.Record> 
     public static <E> E reportError(String err) {
         System.err.println(
             "Usage: java DiskFixedSizeArray path-to-diskarray record-size [pivot-selector [cutoff]]\n" +
-            "Where: pivot-selector = take (f)irst / (r)andom / (m)edian-of-three\n" + 
+            "Where: pivot-selector = take (f)irst / (r)andom / (m)edian-of-three\n" +
             "       cutoff = cutoff for calling Java's built-in sort\n\n" +
-            "Sorts the given file, which consists of fixed-size byte records.\n" + 
+            "Sorts the given file, which consists of fixed-size byte records.\n" +
             "The records are stored in big-endian order (when viewed as integers).\n"
         );
         throw new IllegalArgumentException(err);

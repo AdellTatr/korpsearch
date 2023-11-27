@@ -232,7 +232,7 @@ class DiskIntArrayBuilder:
             max_value = max(values)
 
         with DiskIntArrayBuilder(path, max_value=max_value, byteorder=byteorder, use_memoryview=use_memoryview) as builder:
-            for value in values: 
+            for value in values:
                 builder.append(value)
 
 
@@ -381,7 +381,7 @@ class StringCollectionBuilder:
 
         path = add_suffix(path, StringCollection.strings_suffix)
         with open(path, 'wb') as stringsfile:
-            for string in stringlist: 
+            for string in stringlist:
                 stringsfile.write(string)
 
         DiskIntArrayBuilder.build(

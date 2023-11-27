@@ -21,7 +21,7 @@ def quicksort(array:MutableSequence, pivotselector:PivotSelector, cutoff:int=0):
     sys.setrecursionlimit(lim)
 
 
-def quicksort_subarray(array:MutableSequence, lo:int, hi:int, 
+def quicksort_subarray(array:MutableSequence, lo:int, hi:int,
                        pivotselector:PivotSelector, cutoff:int, logger):
     """Quicksorts the subarray array[lo:hi] in place."""
     logger.update(lo - logger.n)
