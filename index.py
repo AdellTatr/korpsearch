@@ -76,7 +76,7 @@ class Template:
             assert min(t.offset for t in self.template) == 0,          f"Minimum offset must be 0"
             if self.literals:
                 assert all(lit.negative for lit in self.literals),     f"Positive template literal(s)"
-                assert all(0 <= lit.offset <= self.maxdelta() 
+                assert all(0 <= lit.offset <= self.maxdelta()
                            for lit in self.literals),                  f"Literal offset must be within 0...{self.maxdelta()}"
         except AssertionError:
             raise ValueError(f"Invalid template: {self}")
@@ -93,7 +93,7 @@ class Template:
         tokens: List[str] = []
         for offset in range(min_offset, max_offset+1):
             tok = ','.join('?' + l.feature for l in self.template if l.offset == offset)
-            lit = ','.join(f'{l.feature}{"≠" if l.negative else "="}"{l.value}"' 
+            lit = ','.join(f'{l.feature}{"≠" if l.negative else "="}"{l.value}"'
                            for l in self.literals if l.offset == offset)
             if lit:
                 tokens.append(tok + '|' + lit)
@@ -130,8 +130,8 @@ class Template:
             return Template(template, literals)
         except (ValueError, AssertionError):
             raise ValueError(
-                "Ill-formed template - it should be on the form pos:0 or word:0+pos:2 "
-                "or pos:0+lemma:1+sentence:1#S: " + template_str
+                "Ill-formed template - it should be on the form pos-0 or word-0+pos-2 "
+                "or pos-0+lemma-1+sentence-1#S: " + template_str
             )
 
 
@@ -196,12 +196,12 @@ class Index:
         else:
             # The above two are just optimisations of the following generic search key:
             self.search_key = lambda k: tuple(
-                corpus.tokens[tmpl.feature][index[k] + tmpl.offset] 
+                corpus.tokens[tmpl.feature][index[k] + tmpl.offset]
                 for tmpl in template
             )
 
     def __str__(self) -> str:
-        return self.__class__.__name__ + ':' + str(self.template) 
+        return self.__class__.__name__ + ':' + str(self.template)
 
     def __len__(self) -> int:
         return len(self.index)
@@ -301,7 +301,7 @@ def build_general_index(corpus:Corpus, index_path:Path, template:Template, min_f
     unary_indexes : List[Index] = []
     if min_frequency > 0 and len(template) > 1:
         unary_indexes = [
-            Index(corpus, Template([TemplateLiteral(0, tmpl.feature)])) 
+            Index(corpus, Template([TemplateLiteral(0, tmpl.feature)]))
             for tmpl in template
         ]
 
@@ -313,7 +313,7 @@ def build_general_index(corpus:Corpus, index_path:Path, template:Template, min_f
         while start <= end:
             mid = (start + end) // 2
             key = searchkey(mid)
-            if key < unary_key: 
+            if key < unary_key:
                 start = mid + 1
             else:
                 end = mid - 1
@@ -413,7 +413,7 @@ def collect_and_sort_lmdb(collect_positions, index_path, index_size, bytesize, k
     tmpdir = index_path.parent / 'index.tmpdb'
     if tmpdir.exists():
         shutil.rmtree(tmpdir)
-    env = lmdb.open(str(tmpdir), map_size=1_000_000_000_000)
+    env = lmdb.open(str(tmpdir), map_size=1_00_000_000_000)
     with env.begin(write=True) as DB:
         collect_positions(lambda row: DB.put(row, b''))
     logging.debug(f"Creating suffix array")

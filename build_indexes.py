@@ -1,4 +1,3 @@
-
 import shutil
 import argparse
 from pathlib import Path
@@ -17,7 +16,7 @@ CSV_SUFFIXES = ".csv .tsv .txt .gz .bz2 .xz".split()
 
 def main(args:argparse.Namespace):
     base = corpusfile = Path(args.corpus)
-    while base.suffix in CSV_SUFFIXES: 
+    while base.suffix in CSV_SUFFIXES:
         base = base.with_suffix('')
     corpusdir = add_suffix(base, Corpus.dir_suffix)
     indexdir = add_suffix(base, Index.dir_suffix)
@@ -28,7 +27,7 @@ def main(args:argparse.Namespace):
         logging.info(f"Removed all indexes")
 
     if args.corpus_index:
-        with CompressedFileReader(corpusfile) as _: 
+        with CompressedFileReader(corpusfile) as _:
             # This is just to test that the corpus file actually exists
             pass
         corpusdir.mkdir(exist_ok=True)
@@ -60,9 +59,9 @@ def main(args:argparse.Namespace):
                 logging.debug(f"Creating {len(templates)} indexes: {', '.join(map(str, templates))}")
                 for template in templates:
                     Index.build(
-                        corpus, template, 
-                        min_frequency=args.min_frequency, 
-                        keep_tmpfiles=args.keep_tmpfiles, 
+                        corpus, template,
+                        min_frequency=args.min_frequency,
+                        keep_tmpfiles=args.keep_tmpfiles,
                         sorter=args.sorter,
                     )
                 logging.info(f"Created {len(templates)} query indexes")
@@ -112,14 +111,14 @@ parser.add_argument('--corpus-index', '-i', action='store_true', help='build the
 parser.add_argument('--features', '-f', nargs='+', default=[],
     help='build all possible (unary and binary) query indexes for the given features')
 parser.add_argument('--templates', '-t', nargs='+', default=[],
-    help='build query indexes for the given templates: e.g., pos:0 (unary index), or word:0+pos:2 (binary index)')
+    help='build query indexes for the given templates: e.g., pos-0 (unary index), or word-0+pos-2 (binary index)')
 
 
-parser.add_argument('--max-dist', type=int, default=2, 
+parser.add_argument('--max-dist', type=int, default=2,
     help='[only with the --features option] max distance between token pairs (default: 2)')
 parser.add_argument('--min-frequency', type=int, default=0,
     help='[only for binary indexes] min unary frequency for all values in a binary instance (default: 0)')
-parser.add_argument('--no-sentence-breaks', action='store_true', 
+parser.add_argument('--no-sentence-breaks', action='store_true',
     help="[only for binary indexes] don't care about sentence breaks (default: do care)")
 
 parser.add_argument('--verbose', '-v', action='store_const', dest='loglevel', const=logging.DEBUG, default=logging.INFO,
