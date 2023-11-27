@@ -11,17 +11,18 @@ def simple_test() -> None:
         sorters=['internal'],
         indexes_building_query_configs=[IndexesBuildingQueryConfig()]
     ))
+    print_indexes_building_test_results(
+        test_results=indexes_building_test_results,
+        write_to_csv=True,
+        csv_filename='indexes_building_test_results.csv'
+    )
+
     cmdline_search_test_results = test_cmdline_search(
         CmdlineSearchQueryTestConfig(
         python_paths=['python'],
         corpora=[Corpus('../corpora/bnc-100k.csv')],
         cmdline_search_query_configs=[CmdlineSearchQueryConfig()]
     ))
-    print_indexes_building_test_results(
-        test_results=indexes_building_test_results,
-        write_to_csv=True,
-        csv_filename='indexes_building_test_results.csv'
-    )
     print_cmdline_search_test_results(
         test_results=cmdline_search_test_results,
         write_to_csv=True,
@@ -31,8 +32,9 @@ def simple_test() -> None:
 def comprehensive_test() -> None:
     """ A comprehensive indexes building and command-line search test for all possible default inputs. """
     full_indexes_building_test_results = test_indexes_building(IndexesBuildingQueryTestConfig())
-    full_cmdline_search_test_results = test_cmdline_search(CmdlineSearchQueryTestConfig())
     print_indexes_building_test_results(full_indexes_building_test_results)
+
+    full_cmdline_search_test_results = test_cmdline_search(CmdlineSearchQueryTestConfig())
     print_cmdline_search_test_results(full_cmdline_search_test_results)
 
 def main():
