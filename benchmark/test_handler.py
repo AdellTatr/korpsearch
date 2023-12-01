@@ -1,149 +1,52 @@
-from dataclasses import dataclass
-from typing import List, Tuple, Callable, TypeVar
+from typing import List, Tuple, Callable
 from prettytable import PrettyTable
 import csv
 import os
 from test_util import time_function, get_benchmark_absolute_path
 from test_command_builder import build_indexes, build_inverted_indexes, clean_all, build_java_arrays, build_fast_intersection, run_cmdline_search_query
-from test_config import IndexesBuildingQueryConfig, CmdlineSearchQueryConfig, IndexesBuildingQueryTestConfig, CmdlineSearchQueryTestConfig
-
-@dataclass
-class TestResultBase:
-    """ Represents the base structure for storing test results including paths and execution time. """
-    python_path: str
-    corpus_path: str
-    execution_time: float
-
-    def __post_init__(self):
-        try:
-            self.execution_time = float(self.execution_time)
-        except ValueError:
-            raise TypeError("Execution time must be a numeric value")
-
-        if self.execution_time < 0:
-            raise ValueError("Execution time cannot be negative")
-
-    @property
-    def python_path_str(self) -> str:
-        return 'python' if self.python_path == 'python' else 'pypy'
-
-    @property
-    def corpus_path_str(self) -> str:
-        return self.corpus_path.replace('../', '')
-
-    @property
-    def execution_time_str(self) -> str:
-        return f"{self.execution_time:.2f}"
-
-@dataclass
-class IndexesBuildingTestResult(TestResultBase):
-    """ Stores the results of indexes building tests along with specific configuration details. """
-    build_speed: str
-    indexes_building_query_config: IndexesBuildingQueryConfig
-    sorter: str
-
-    @property
-    def build_type_str(self) -> str:
-        return 'features' if self.indexes_building_query_config.build_type == '--features' else 'templates'
-
-    @property
-    def build_arguments_str(self) -> str:
-        return ', '.join(self.indexes_building_query_config.build_arguments)
-
-    @property
-    def max_dist_str(self) -> str:
-        return str(self.indexes_building_query_config.max_dist)
-
-    @property
-    def min_frequency_str(self) -> str:
-        return str(self.indexes_building_query_config.min_frequency)
-
-    @property
-    def no_sentence_breaks_str(self) -> str:
-        return str(self.indexes_building_query_config.no_sentence_breaks)
-
-@dataclass
-class CmdlineSearchTestResult(TestResultBase):
-    """ Stores the results of  command-line search tests along with specific configuration details. """
-    cmdline_search_query_config: CmdlineSearchQueryConfig
-
-    @property
-    def query_arguments_str(self) -> str:
-        return self.cmdline_search_query_config.query_arguments
-
-    @property
-    def print_format_str(self) -> str:
-        return self.cmdline_search_query_config.print_format
-
-    @property
-    def start_index_str(self) -> str:
-        return str(self.cmdline_search_query_config.start_index)
-
-    @property
-    def results_num_str(self) -> str:
-        return str(self.cmdline_search_query_config.results_num)
-
-    @property
-    def end_index_str(self) -> str:
-        return str(self.cmdline_search_query_config.end_index)
-
-    @property
-    def features_to_show_str(self) -> str:
-        return self.cmdline_search_query_config.features_to_show.replace(',', ', ')
-
-    @property
-    def no_cache_str(self) -> str:
-        return str(self.cmdline_search_query_config.no_cache)
-
-    @property
-    def no_sentence_breaks_str(self) -> str:
-        return str(self.cmdline_search_query_config.no_sentence_breaks)
-
-    @property
-    def internal_intersection_str(self) -> str:
-        return str(self.cmdline_search_query_config.internal_intersection)
-
-    @property
-    def filter_results_str(self) -> str:
-        return str(self.cmdline_search_query_config.filter_results)
+from test_config import IndexesBuildingQueryTestConfig, CmdlineSearchQueryTestConfig, TestResultBase, IndexesBuildingTestResult, CmdlineSearchTestResult
 
 def execute_test_cycle(
         test_result: TestResultBase,
         build_functions: List[Callable],
         test_function: Callable
-    ) -> None:
+    ) -> int:
     """ Executes a build process and then tests performance. """
+    return_codes = []
     for build_function in build_functions:
-        build_function()
-    _, execution_time = test_function(test_result)
+        return_codes.append(build_function())
+    test_function_return_code, execution_time = test_function(test_result)
     test_result.execution_time = execution_time
+    return_codes.append(test_function_return_code)
+    return sum(abs(return_code) for return_code in return_codes)
 
 @time_function
-def test_indexes_building_performance(test_result: IndexesBuildingTestResult) -> None:
+def test_indexes_building_performance(test_result: IndexesBuildingTestResult) -> int:
     """ Tests the performance of indexes building (basic and inverted). """
-    build_indexes(test_result.python_path, test_result.corpus_path)
-    build_inverted_indexes(test_result.python_path, test_result.corpus_path, test_result.indexes_building_query_config, test_result.sorter)
+    build_indexes_return_code = build_indexes(test_result.python_path, test_result.corpus.path)
+    build_inverted_indexes_return_code = build_inverted_indexes(test_result.python_path, test_result.corpus.path, test_result.indexes_building_query_config, test_result.sorter)
+    return abs(build_indexes_return_code) + abs(build_inverted_indexes_return_code)
 
 @time_function
-def test_cmdline_search_performance(test_result: CmdlineSearchTestResult) -> None:
+def test_cmdline_search_performance(test_result: CmdlineSearchTestResult) -> int:
     """ Tests the performance of a command-line search query. """
-    run_cmdline_search_query(test_result.python_path, test_result.corpus_path, test_result.cmdline_search_query_config)
+    return run_cmdline_search_query(test_result.python_path, test_result.corpus.name, test_result.cmdline_search_query_config)
 
-def perform_indexes_building_and_testing_cycle(test_result: IndexesBuildingTestResult) -> None:
+def perform_indexes_building_and_testing_cycle(test_result: IndexesBuildingTestResult) -> int:
     """ Performs a full cycle of indexes building and testing for the given configuration. """
     build_functions = []
     if test_result.sorter == 'java':
         build_functions.append(build_java_arrays)
     if test_result.build_speed == 'fast-intersection':
         build_functions.append(build_fast_intersection)
-    execute_test_cycle(test_result, build_functions, test_indexes_building_performance)
+    return execute_test_cycle(test_result, build_functions, test_indexes_building_performance)
 
-def perform_cmdline_searching_and_testing_cycle(test_result: CmdlineSearchTestResult) -> None:
+def perform_cmdline_searching_and_testing_cycle(test_result: CmdlineSearchTestResult) -> int:
     """ Performs a full cycle of command-line searching and testing for the given configuration. """
     build_functions = []
     if not test_result.cmdline_search_query_config.internal_intersection:
         build_functions.append(build_fast_intersection)
-    execute_test_cycle(test_result, build_functions, test_cmdline_search_performance)
+    return execute_test_cycle(test_result, build_functions, test_cmdline_search_performance)
 
 def test_indexes_building(indexes_building_query_test_config: IndexesBuildingQueryTestConfig) -> List[IndexesBuildingTestResult]:
     """ Tests a list of indexes building configurations on a corpus and records the results. """
@@ -153,10 +56,10 @@ def test_indexes_building(indexes_building_query_test_config: IndexesBuildingQue
             for corpus in indexes_building_query_test_config.corpora:
                 for indexes_building_query_config in indexes_building_query_test_config.indexes_building_query_configs:
                     for sorter in indexes_building_query_test_config.sorters:
-                        clean_all()
-                        test_result = IndexesBuildingTestResult(python_path=python_path, build_speed=build_speed, corpus_path=corpus.path, indexes_building_query_config=indexes_building_query_config, sorter=sorter, execution_time=0.0)
-                        perform_indexes_building_and_testing_cycle(test_result)
-                        test_results.append(test_result)
+                        if clean_all() == 0:
+                            test_result = IndexesBuildingTestResult(python_path=python_path, build_speed=build_speed, corpus=corpus, indexes_building_query_config=indexes_building_query_config, sorter=sorter, execution_time=0.0)
+                            if perform_indexes_building_and_testing_cycle(test_result) == 0:
+                                test_results.append(test_result)
     return test_results
 
 def test_cmdline_search(cmdline_search_query_test_config: CmdlineSearchQueryTestConfig) -> List[CmdlineSearchTestResult]:
@@ -165,9 +68,9 @@ def test_cmdline_search(cmdline_search_query_test_config: CmdlineSearchQueryTest
     for python_path in cmdline_search_query_test_config.python_paths:
         for corpus in cmdline_search_query_test_config.corpora:
             for cmdline_search_query_config in cmdline_search_query_test_config.cmdline_search_query_configs:
-                test_result = CmdlineSearchTestResult(python_path=python_path, corpus_path=corpus.name, cmdline_search_query_config=cmdline_search_query_config, execution_time=0.0)
-                perform_cmdline_searching_and_testing_cycle(test_result)
-                test_results.append(test_result)
+                test_result = CmdlineSearchTestResult(python_path=python_path, corpus=corpus, cmdline_search_query_config=cmdline_search_query_config, execution_time=0.0)
+                if perform_cmdline_searching_and_testing_cycle(test_result) == 0:
+                    test_results.append(test_result)
     return test_results
 
 def prepare_indexes_building_row(test_result: IndexesBuildingTestResult) -> Tuple[List[str], List[str]]:

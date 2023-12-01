@@ -1,9 +1,9 @@
 from test_config import IndexesBuildingQueryConfig, CmdlineSearchQueryConfig
 from test_util import run_subprocess
 
-def build_indexes(python_path: str, corpus_path: str) -> None:
+def build_indexes(python_path: str, corpus_path: str) -> int:
     """ Builds basic indexes for given corpus. """
-    run_subprocess([
+    return run_subprocess([
         python_path,
         '../build_indexes.py',
         '--corpus',
@@ -17,7 +17,7 @@ def build_inverted_indexes(
         corpus_path: str,
         indexes_building_query_config: IndexesBuildingQueryConfig,
         sorter: str
-    ) -> None:
+    ) -> int:
     """ Builds inverted indexes for given corpus based on configuration. """
     args = [
         python_path,
@@ -42,25 +42,25 @@ def build_inverted_indexes(
     ]
     if indexes_building_query_config.no_sentence_breaks:
         args += ['--no-sentence-breaks']
-    run_subprocess(args)
+    return run_subprocess(args)
 
-def build_java_arrays() -> None:
+def build_java_arrays() -> int:
     """ Builds the Java implementation of Disk Fixed Size Arrays (for 'java' sorting). """
-    run_subprocess(['make', 'java-arrays'])
+    return run_subprocess(['make', 'java-arrays'])
 
-def build_fast_intersection() -> None:
+def build_fast_intersection() -> int:
     """ Builds the faster intersection module using Cython. """
-    run_subprocess(['make', 'fast-intersection'])
+    return run_subprocess(['make', 'fast-intersection'])
 
-def clean_all() -> None:
+def clean_all() -> int:
     """ Cleans all built components. """
-    run_subprocess(['make', 'clean-all'])
+    return run_subprocess(['make', 'clean-all'])
 
 def run_cmdline_search_query(
         python_path: str,
         corpus_path: str,
         cmdline_search_query_config: CmdlineSearchQueryConfig
-    ) -> None:
+    ) -> int:
     """ Executes command-line search query on given corpus based on configuration. """
     args = [
         python_path,
@@ -84,4 +84,4 @@ def run_cmdline_search_query(
         args += ['--internal-intersection']
     if cmdline_search_query_config.filter_results:
         args += ['--filter']
-    run_subprocess(args)
+    return run_subprocess(args)
