@@ -23,6 +23,11 @@ There are no required libraries, you should be able to run things without instal
 
 - [prettytable](https://pypi.org/project/prettytable/) to print test results in an formatted ASCII tables
 
+All libraries can be installed by running the command:
+```
+pip install -r requirements.txt
+```
+
 ## Building inverted indexes
 
 Before you can start searching in a corpus you have to build the corpus index, and then some inverted indexes. If you want help, run:

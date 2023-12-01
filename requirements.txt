@@ -1,4 +1,4 @@
-# All needed packages can be installed by running the command:
+# All libraries can be installed by running the command:
 #   pip install -r requirements.txt
 
 tqdm          # For a better progress bar
