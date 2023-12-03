@@ -2,6 +2,7 @@ from typing import List, Tuple, Callable
 from prettytable import PrettyTable
 import csv
 import os
+from itertools import product
 from test_util import time_function, get_benchmark_absolute_path
 from test_command_builder import build_indexes, build_inverted_indexes, clean_all, build_java_arrays, build_fast_intersection, run_cmdline_search_query
 from test_config import IndexesBuildingQueryTestConfig, CmdlineSearchQueryTestConfig, TestResultBase, IndexesBuildingTestResult, CmdlineSearchTestResult
@@ -14,23 +15,23 @@ def execute_test_cycle(
     """ Executes a build process and then tests performance. """
     return_codes = []
     for build_function in build_functions:
-        return_codes.append(build_function())
+        return_codes.append((build_function(),))
     test_function_return_code, execution_time = test_function(test_result)
     test_result.execution_time = execution_time
     return_codes.append(test_function_return_code)
-    return sum(abs(return_code) for return_code in return_codes)
+    return sum(abs(return_code) for tuple_ in return_codes for return_code in tuple_)
 
 @time_function
-def test_indexes_building_performance(test_result: IndexesBuildingTestResult) -> int:
+def test_indexes_building_performance(test_result: IndexesBuildingTestResult) -> Tuple[int]:
     """ Tests the performance of indexes building (basic and inverted). """
     build_indexes_return_code = build_indexes(test_result.python_path, test_result.corpus.path)
     build_inverted_indexes_return_code = build_inverted_indexes(test_result.python_path, test_result.corpus.path, test_result.indexes_building_query_config, test_result.sorter)
-    return abs(build_indexes_return_code) + abs(build_inverted_indexes_return_code)
+    return (build_indexes_return_code, build_inverted_indexes_return_code)
 
 @time_function
-def test_cmdline_search_performance(test_result: CmdlineSearchTestResult) -> int:
+def test_cmdline_search_performance(test_result: CmdlineSearchTestResult) -> Tuple[int]:
     """ Tests the performance of a command-line search query. """
-    return run_cmdline_search_query(test_result.python_path, test_result.corpus.name, test_result.cmdline_search_query_config)
+    return (run_cmdline_search_query(test_result.python_path, test_result.corpus.name, test_result.cmdline_search_query_config),)
 
 def perform_indexes_building_and_testing_cycle(test_result: IndexesBuildingTestResult) -> int:
     """ Performs a full cycle of indexes building and testing for the given configuration. """
@@ -51,26 +52,51 @@ def perform_cmdline_searching_and_testing_cycle(test_result: CmdlineSearchTestRe
 def test_indexes_building(indexes_building_query_test_config: IndexesBuildingQueryTestConfig) -> List[IndexesBuildingTestResult]:
     """ Tests a list of indexes building configurations on a corpus and records the results. """
     test_results = []
-    for python_path in indexes_building_query_test_config.python_paths:
-        for build_speed in indexes_building_query_test_config.build_speeds:
-            for corpus in indexes_building_query_test_config.corpora:
-                for indexes_building_query_config in indexes_building_query_test_config.indexes_building_query_configs:
-                    for sorter in indexes_building_query_test_config.sorters:
-                        if clean_all() == 0:
-                            test_result = IndexesBuildingTestResult(python_path=python_path, build_speed=build_speed, corpus=corpus, indexes_building_query_config=indexes_building_query_config, sorter=sorter, execution_time=0.0)
-                            if perform_indexes_building_and_testing_cycle(test_result) == 0:
-                                test_results.append(test_result)
+
+    configurations = product(
+        indexes_building_query_test_config.python_paths,
+        indexes_building_query_test_config.build_speeds,
+        indexes_building_query_test_config.corpora,
+        indexes_building_query_test_config.indexes_building_query_configs,
+        indexes_building_query_test_config.sorters
+    )
+
+    for python_path, build_speed, corpus, indexes_building_query_config, sorter in configurations:
+        if clean_all() != 0:
+            continue
+        test_result = IndexesBuildingTestResult(
+            python_path=python_path,
+            build_speed=build_speed,
+            corpus=corpus,
+            indexes_building_query_config=indexes_building_query_config,
+            sorter=sorter,
+            execution_time=0.0
+        )
+        if perform_indexes_building_and_testing_cycle(test_result) == 0:
+            test_results.append(test_result)
+
     return test_results
 
 def test_cmdline_search(cmdline_search_query_test_config: CmdlineSearchQueryTestConfig) -> List[CmdlineSearchTestResult]:
     """ Tests a list of command-line searching configurations on a corpus and records the results. """
     test_results = []
-    for python_path in cmdline_search_query_test_config.python_paths:
-        for corpus in cmdline_search_query_test_config.corpora:
-            for cmdline_search_query_config in cmdline_search_query_test_config.cmdline_search_query_configs:
-                test_result = CmdlineSearchTestResult(python_path=python_path, corpus=corpus, cmdline_search_query_config=cmdline_search_query_config, execution_time=0.0)
-                if perform_cmdline_searching_and_testing_cycle(test_result) == 0:
-                    test_results.append(test_result)
+
+    configurations = product(
+        cmdline_search_query_test_config.python_paths,
+        cmdline_search_query_test_config.corpora,
+        cmdline_search_query_test_config.cmdline_search_query_configs
+    )
+
+    for python_path, corpus, cmdline_search_query_config in configurations:
+        test_result = CmdlineSearchTestResult(
+            python_path=python_path,
+            corpus=corpus,
+            cmdline_search_query_config=cmdline_search_query_config,
+            execution_time=0.0
+        )
+        if perform_cmdline_searching_and_testing_cycle(test_result) == 0:
+            test_results.append(test_result)
+
     return test_results
 
 def prepare_indexes_building_row(test_result: IndexesBuildingTestResult) -> Tuple[List[str], List[str]]:
