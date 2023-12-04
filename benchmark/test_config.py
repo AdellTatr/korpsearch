@@ -140,7 +140,7 @@ class IndexesBuildingQueryTestConfig:
             self.indexes_building_query_configs = [
                 IndexesBuildingQueryConfig(
                     build_type=build_type,
-                    build_arguments=corpus.headers if build_type == '--features' else IndexesBuildingQueryConfig.format_corpus_headers_with_indices(corpus.headers),
+                    build_arguments=corpus.headers if build_type == '--features' else [IndexesBuildingQueryConfig.format_corpus_headers_with_indices(corpus.headers)],
                     max_dist=max_dist,
                     min_frequency=min_frequency,
                     no_sentence_breaks=no_sentence_breaks
